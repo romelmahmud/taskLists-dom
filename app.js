@@ -10,6 +10,8 @@ loadEventListener();
 // creating loadEventListener fuction
 
 function loadEventListener() {
+  //DOM event lisetener
+  document.addEventListener("DOMContentLoaded", getTasks);
   //add task
   form.addEventListener("submit", addTask);
   //remove task
@@ -21,13 +23,47 @@ function loadEventListener() {
   filter.addEventListener("keyup", filterTask);
 }
 
+// creating get task fuction
+
+function getTasks() {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem("tasks"));
+  }
+
+  tasks.forEach(function (task) {
+    // create li eleent
+    const li = document.createElement("li");
+    // adding class
+    li.className = "collection-item";
+    // creating and appendng textNode
+    li.appendChild(document.createTextNode(task));
+
+    // creating link createElement
+    const link = document.createElement("a");
+    //add class
+    link.className = "delete-item   secondary-content";
+    //add icon HTML
+    link.innerHTML = '<i class="fa fa-remove"></i>';
+    // append link to li
+
+    li.appendChild(link);
+
+    // append li to ul
+
+    taskList.appendChild(li);
+  });
+}
+
 // creating addTask function
 
 function addTask(e) {
   if (taskInput.value === "") {
     alert("Add a Task");
   }
-  // create li eleent
+  // create li element
   const li = document.createElement("li");
   // adding class
   li.className = "collection-item";
@@ -48,11 +84,28 @@ function addTask(e) {
 
   taskList.appendChild(li);
 
+  // add task in the localStorage
+
+  addTaskInLocalStorage(taskInput.value);
+
   // clearing input
 
   taskInput.value = "";
 
   e.preventDefault();
+}
+//creat addTaskInLocalStorage function
+
+function addTaskInLocalStorage(task) {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem("tasks"));
+  }
+  tasks.push(task);
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 // create removeTask function
@@ -63,6 +116,28 @@ function removeTask(e) {
       e.target.parentElement.parentElement.remove();
     }
   }
+
+  // removeTask from  localStorage
+  removeTaskFromLocalStorage(e.target.parentElement.parentElement);
+}
+
+// creating removeTaskFromLocalStorage fuction
+
+function removeTaskFromLocalStorage(taskItem) {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem("tasks"));
+  }
+
+  tasks.forEach(function (task, index) {
+    if (taskItem.textContent === task) {
+      tasks.splice(index, 1);
+    }
+  });
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 // create clear task function
@@ -76,6 +151,10 @@ function clearTask() {
   while (taskList.firstChild) {
     taskList.removeChild(taskList.firstChild);
   }
+
+  // clearing all Task
+
+  localStorage.clear();
 }
 
 // creating filter task function
